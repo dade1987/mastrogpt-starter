@@ -1,4 +1,5 @@
 import vdb
+import vision.store.store as test
 
 USAGE = f"""Welcome to the Vector DB Loader.
 Write text to insert in the DB. 
@@ -7,6 +8,7 @@ Use `*<string>` to vector search the <string>  in the DB.
 Use `#<limit>`  to change the limit of searches.
 Use `!<substr>` to remove text with `<substr>` in collection.
 Use `!![<collection>]` to remove `<collection>` (default current) and switch to default.
+Use `$<img>` to load an image from S3 (eg. s3path),  empty to list available images on S3
 """
 
 def loader(args):
@@ -62,6 +64,15 @@ def loader(args):
   elif inp.startswith("!"):
     count = db.remove_by_substring(inp[1:])
     out = f"Deleted {count} records."    
+  elif inp.startswith("$"):
+    if len(inp) > 1:
+      img = inp[1:].strip()
+      if img == '':
+        test.store({input:'*'})
+      else:
+        #res = db.insert_image(img)
+        out = f"Inserted image {img} with id {res.get('id', 'unknown')}"
+    
   elif inp != '':
     out = "Inserted "
     lines = [inp]
