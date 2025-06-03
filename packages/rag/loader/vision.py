@@ -27,6 +27,9 @@ class Vision:
       ],
       "stream": False
     }
+
+    print(msg)
+    
     lines = req.post(self.url, json=msg, stream=True).iter_lines()
     res = req.post(self.url, json=msg)
     return collect(lines)

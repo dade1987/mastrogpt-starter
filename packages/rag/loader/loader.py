@@ -82,7 +82,6 @@ def loader(args):
         out = f"Looking at {key}, I see:\n"
         data = buc.read(key)
         img = base64.b64encode(data).decode("utf-8")
-        vis = vision.Vision(args)
         out += vis.decode(img)
     else:
       print("Listing images in bucket")
