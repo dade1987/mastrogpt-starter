@@ -1,5 +1,5 @@
 import vdb
-import vision.store.store as test
+import bucket
 
 USAGE = f"""Welcome to the Vector DB Loader.
 Write text to insert in the DB. 
@@ -27,6 +27,8 @@ def loader(args):
 
   out = f"{USAGE}Current collection is {collection} with limit {limit}"
   db = vdb.VectorDB(args, collection)
+  buc = bucket.Bucket(args)
+
   inp = str(args.get('input', ""))
 
   # select collection
@@ -68,7 +70,10 @@ def loader(args):
     if len(inp) > 1:
       img = inp[1:].strip()
       if img == '':
-        test.store({input:'*'})
+        ls = buc.find('')
+        out = "Found:\n"
+        for item in ls:
+          out += f"- {item}\n"
       else:
         #res = db.insert_image(img)
         out = f"Inserted image {img} with id {res.get('id', 'unknown')}"
