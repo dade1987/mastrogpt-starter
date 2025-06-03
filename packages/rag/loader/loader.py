@@ -83,6 +83,7 @@ def loader(args):
         data = buc.read(key)
         img = base64.b64encode(data).decode("utf-8")
         out += vis.decode(img)
+        print(out)
     else:
       print("Listing images in bucket")
       ls = buc.find("")

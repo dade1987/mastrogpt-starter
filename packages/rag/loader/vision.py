@@ -13,7 +13,9 @@ def collect(lines):
 class Vision:
   def __init__(self, args):
     host = args.get("OLLAMA_HOST", os.getenv("OLLAMA_HOST"))
+    print(host)
     auth = args.get("AUTH", os.getenv("AUTH"))
+    print(auth)
     self.url = f"https://{auth}@{host}/api/chat"
 
   def decode(self, img):
@@ -28,9 +30,6 @@ class Vision:
       "stream": False
     }
 
-    print(msg)
-    
-    lines = req.post(self.url, json=msg, stream=True).iter_lines()
-    res = req.post(self.url, json=msg)
+    lines = req.post(self.url, json=msg, stream=False).iter_lines()
     return collect(lines)
 
