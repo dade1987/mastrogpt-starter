@@ -52,6 +52,10 @@ class VectorDB:
     vec = self.embed(text)
     return self.client.insert(self.collection, {"text":text, "embeddings": vec})
   
+    
+    
+    
+  
   def count(self):
     MAX="1000"
     res = self.client.query(collection_name=self.collection, output_fields=["id"], limit=int(MAX))

@@ -1,5 +1,8 @@
+import vision
 import vdb
 import bucket
+import base64
+
 
 USAGE = f"""Welcome to the Vector DB Loader.
 Write text to insert in the DB. 
@@ -28,8 +31,11 @@ def loader(args):
   out = f"{USAGE}Current collection is {collection} with limit {limit}"
   db = vdb.VectorDB(args, collection)
   buc = bucket.Bucket(args)
+  vis= vision.Vision(args)
 
   inp = str(args.get('input', ""))
+
+  print(inp)
 
   # select collection
   if inp.startswith("@"):
@@ -69,14 +75,21 @@ def loader(args):
   elif inp.startswith("$"):
     if len(inp) > 1:
       img = inp[1:].strip()
-      if img == '':
-        ls = buc.find('')
-        out = "Found:\n"
-        for item in ls:
-          out += f"- {item}\n"
-      else:
-        #res = db.insert_image(img)
-        out = f"Inserted image {img} with id {res.get('id', 'unknown')}"
+      img = buc.find(inp[1:])
+      
+      if len(img) > 0:
+        key = img[0]
+        out = f"Looking at {key}, I see:\n"
+        data = buc.read(key)
+        img = base64.b64encode(data).decode("utf-8")
+        vis = vision.Vision(args)
+        out += vis.decode(img)
+    else:
+      print("Listing images in bucket")
+      ls = buc.find("")
+      out = "Found:\n"
+      for item in ls:
+        out += f"- {item}\n"
     
   elif inp != '':
     out = "Inserted "
