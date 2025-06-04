@@ -34,6 +34,7 @@ def loader(args):
   vis= vision.Vision(args)
 
   res = {}
+  res['html']="";
 
   inp = str(args.get('input', ""))
 
