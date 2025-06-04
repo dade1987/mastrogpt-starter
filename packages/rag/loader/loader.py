@@ -34,7 +34,7 @@ def loader(args):
   vis= vision.Vision(args)
 
   res = {}
-  res['html']="";
+  html=None
 
   inp = str(args.get('input', ""))
 
@@ -66,7 +66,7 @@ def loader(args):
         out += f"({i[0]:.2f}) {i[1]} [s3key: {i[2]}]\n"
         if(i[2] != ""):
           url = buc.exturl(i[2], 3600)
-          res['html'] = f"<img src='{url}'>"
+          html = f"<img src='{url}'>"
 
     else:
       out = "Not found"
@@ -110,5 +110,5 @@ def loader(args):
       out += "\n".join([str(x) for x in res.get("ids", [])])
       out += "\n"
 
-  return {"output": out, "html":res['html'], "state": f"{collection}:{limit}"}
+  return {"output": out, "html":html, "state": f"{collection}:{limit}"}
 
