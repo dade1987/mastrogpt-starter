@@ -33,6 +33,8 @@ def loader(args):
   buc = bucket.Bucket(args)
   vis= vision.Vision(args)
 
+  res = {}
+
   inp = str(args.get('input', ""))
 
   print(inp)
@@ -55,11 +57,16 @@ def loader(args):
     search = inp[1:]
     if search == "":
       search = " "
-    res = db.vector_search(search, limit=limit)
-    if len(res) > 0:
+    r = db.vector_search(search, limit=limit)
+    if len(r) > 0:
+      print(r)
       out = f"Found:\n"
-      for i in res:
-        out += f"({i[0]:.2f}) {i[1]}\n"
+      for i in r:
+        out += f"({i[0]:.2f}) {i[1]} [s3key: {i[2]}]\n"
+        if(i[2] != ""):
+          url = buc.exturl(i[2], 3600)
+          res['html'] = f"<img src='{url}'>"
+
     else:
       out = "Not found"
   # remove a collection
@@ -79,11 +86,11 @@ def loader(args):
       
       if len(img) > 0:
         key = img[0]
-        out = f"Looking at {key}, I see:\n"
         data = buc.read(key)
         img = base64.b64encode(data).decode("utf-8")
-        out += vis.decode(img)
-        print(out)
+        out = vis.decode(img)
+        url = buc.exturl(key, 3600)
+        res = db.insert(out,key)
     else:
       print("Listing images in bucket")
       ls = buc.find("")
@@ -102,5 +109,5 @@ def loader(args):
       out += "\n".join([str(x) for x in res.get("ids", [])])
       out += "\n"
 
-  return {"output": out, "state": f"{collection}:{limit}"}
-  
+  return {"output": out, "html":res['html'], "state": f"{collection}:{limit}"}
+

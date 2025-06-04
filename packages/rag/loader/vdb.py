@@ -28,11 +28,14 @@ class VectorDB:
   def setup(self, collection):
     self.collection = collection    
     ls = self.client.list_collections()
+
     if not collection in ls:
       schema = self.client.create_schema()
       schema.add_field(field_name="id", datatype=DataType.INT64, is_primary=True, auto_id=True)
       schema.add_field(field_name="text", datatype=DataType.VARCHAR, max_length=DIMENSION_TEXT)
       schema.add_field(field_name="embeddings", datatype=DataType.FLOAT_VECTOR, dim=DIMENSION_EMBEDDING)
+      schema.add_field(field_name="s3key", datatype=DataType.VARCHAR, max_length=DIMENSION_TEXT)
+
       
       index_params = self.client.prepare_index_params()
       index_params.add_index("embeddings", index_type="AUTOINDEX", metric_type="IP")
@@ -48,13 +51,9 @@ class VectorDB:
     res = req.post(self.url, json=msg).json()
     return res.get('embedding', [])
 
-  def insert(self, text):
+  def insert(self, text, s3key=""):
     vec = self.embed(text)
-    return self.client.insert(self.collection, {"text":text, "embeddings": vec})
-  
-    
-    
-    
+    return self.client.insert(self.collection, {"text":text, "s3key":s3key, "embeddings": vec})
   
   def count(self):
     MAX="1000"
@@ -70,7 +69,7 @@ class VectorDB:
       collection_name=self.collection,
       search_params={"metric_type": "IP"},
       anns_field="embeddings", data=[vec],
-      output_fields=["text"],
+      output_fields=["text","s3key"],
       limit=limit
     )
     res = []
@@ -78,7 +77,9 @@ class VectorDB:
       for item in cur[0]:
         dist = item.get('distance', 0)
         text = item.get("entity", {}).get("text", "")
-        res.append((dist, text))
+        
+        s3key = item.get("entity", {}).get("s3key", "")
+        res.append((dist, text, s3key))
     return res
 
   def remove_by_substring(self, inp):

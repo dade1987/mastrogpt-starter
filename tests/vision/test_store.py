@@ -5,6 +5,8 @@ import base64
 
 def test_store():
     buc = bucket.Bucket({})
+    ls = buc.find("cat")
+    n = buc.remove(ls[0])
     assert len(buc.find("cat")) == 0
     body = pathlib.Path("tests/vision/cat.jpg").read_bytes()
     buc.write("cat.jpg", body)
@@ -17,6 +19,9 @@ def test_store():
     vis = vision.Vision({})
     b64 = base64.b64encode(file).decode()
     res = vis.decode(b64)
+
+    print("RES",res)
+    
     assert res.find("cat") != -1
     n = buc.remove(ls[0])
     assert n == 1
